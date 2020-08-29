@@ -1,7 +1,7 @@
 {
-  "name": "example-solana",
+  "name": "example-avalanche",
   "version": "1.0.0",
-  "description": "magic solana example",
+  "description": "magic avalanche example",
   "keywords": [
     "react",
     "starter"
