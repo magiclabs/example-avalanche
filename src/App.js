@@ -4,7 +4,7 @@ import { Magic } from "magic-sdk";
 import { AvalancheExtension } from "@magic-ext/avalanche";
 import { Avalanche } from "avalanche";
 
-const magic = new Magic('pk_test_6F796B81ECBC0E64', {
+const magic = new Magic('pk_live_FD34D24CB810870B', {
   extensions: {
     xchain: new AvalancheExtension({
       rpcUrl: 'https://testapi.avax.network',
