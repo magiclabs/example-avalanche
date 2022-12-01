@@ -4,14 +4,14 @@ import { Magic } from "magic-sdk";
 import { AvalancheExtension } from "@magic-ext/avalanche";
 import { Avalanche } from "avalanche";
 
-const magic = new Magic('pk_live_FD34D24CB810870B', {
+const magic = new Magic("pk_live_C5678C9C36A5A9E1", {
   extensions: {
     xchain: new AvalancheExtension({
-      rpcUrl: 'https://testapi.avax.network',
-      chainId: 'X',
+      rpcUrl: "https://testapi.avax.network",
+      chainId: "X",
       networkId: 4,
-    })
-  }
+    }),
+  },
 });
 
 export default function App() {
