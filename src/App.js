@@ -4,7 +4,7 @@ import { Magic } from 'magic-sdk';
 import { AvalancheExtension } from '@magic-ext/avalanche';
 import { Avalanche, BN } from 'avalanche';
 
-const magic = new Magic('pk_live_C5678C9C36A5A9E1', {
+const magic = new Magic('pk_live_8D40A7E251F283ED', {
   extensions: {
     xchain: new AvalancheExtension({
       rpcUrl: 'https://api.avax-test.network/ext/bc/X',
@@ -42,14 +42,13 @@ export default function App() {
     const assetId = 'U8iRqJoiJm8xZHAacmvYyZVwqQx6uDNtQeP3CQ6fcgQk3JqnK';
     const xchain = getXChain();
     const getBalanceResponse = await xchain.getBalance(address, assetId);
-    console.log('getBalanceResponse', getBalanceResponse);
     const bal = new BN(getBalanceResponse.balance);
     setBalance(bal.toString() / 1000000000);
   };
 
   const getXChain = () => {
-    let myNetworkID = 5; //default is 3, we want to override that for our local network
-    let myBlockchainID = 'X'; // The XChain blockchainID on this network
+    let myNetworkID = 5; 
+    let myBlockchainID = 'X';
     let avalanche = new Avalanche(
       new URL('https://api.avax-test.network/ext/bc/X').hostname,
       443,
@@ -61,7 +60,7 @@ export default function App() {
   };
 
   const login = async () => {
-    await magic.auth.loginWithMagicLink({ email });
+    await magic.auth.loginWithEmailOTP({ email });
     setIsLoggedIn(true);
   };
 
@@ -121,7 +120,15 @@ export default function App() {
           </div>
           <div className="container">
             <h1>Avalanche address</h1>
-            <div className="info">{publicAddress}</div>
+            <div className="info">
+              <a
+                href={`https://testnet.avascan.info/blockchain/x/address/${publicAddress}/transactions`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {publicAddress}
+              </a>
+          </div>
           </div>
           <div className="container">
             <h1>Balance</h1>
