@@ -9,7 +9,7 @@
   "main": "src/index.js",
   "dependencies": {
     "@magic-ext/avalanche": "^14.0.0",
-    "avalanche": "^3.16.0",
+    "avalanche": "3.6.2",
     "magic-sdk": "^19.0.0",
     "react": "16.13.1",
     "react-dom": "16.12.0",
