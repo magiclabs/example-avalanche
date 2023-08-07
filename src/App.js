@@ -1,42 +1,66 @@
-import React, { useState, useEffect } from "react";
-import "./styles.css";
-import { Magic } from "magic-sdk";
-import { AvalancheExtension } from "@magic-ext/avalanche";
-import { Avalanche } from "avalanche";
+import React, { useState, useEffect } from 'react';
+import './styles.css';
+import { Magic } from 'magic-sdk';
+import { AvalancheExtension } from '@magic-ext/avalanche';
+import { Avalanche, BN } from 'avalanche';
 
-const magic = new Magic("pk_live_C5678C9C36A5A9E1", {
+const magic = new Magic('pk_live_C5678C9C36A5A9E1', {
   extensions: {
     xchain: new AvalancheExtension({
-      rpcUrl: "https://testapi.avax.network",
-      chainId: "X",
-      networkId: 4,
+      rpcUrl: 'https://api.avax-test.network/ext/bc/X',
+      chainId: 'X',
+      networkId: 5,
     }),
   },
 });
 
 export default function App() {
-  const [email, setEmail] = useState("");
-  const [publicAddress, setPublicAddress] = useState("");
-  const [destinationAddress, setDestinationAddress] = useState("");
+  const [email, setEmail] = useState('');
+  const [publicAddress, setPublicAddress] = useState('');
+  const [balance, setBalance] = useState('0');
+  const [destinationAddress, setDestinationAddress] = useState('');
   const [sendAmount, setSendAmount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userMetadata, setUserMetadata] = useState({});
-  const [txHash, setTxHash] = useState("");
+  const [txHash, setTxHash] = useState('');
   const [sendingTransaction, setSendingTransaction] = useState(false);
 
   useEffect(() => {
-    magic.user.isLoggedIn().then(async (magicIsLoggedIn) => {
+    magic.user.isLoggedIn().then(async magicIsLoggedIn => {
       setIsLoggedIn(magicIsLoggedIn);
       if (magicIsLoggedIn) {
         const metadata = await magic.user.getMetadata();
+        getBalance(metadata.publicAddress);
         setPublicAddress(metadata.publicAddress);
         setUserMetadata(metadata);
       }
     });
   }, [isLoggedIn]);
 
+  const getBalance = async address => {
+    // AVAX Fuji asset ID
+    const assetId = 'U8iRqJoiJm8xZHAacmvYyZVwqQx6uDNtQeP3CQ6fcgQk3JqnK';
+    const xchain = getXChain();
+    const getBalanceResponse = await xchain.getBalance(address, assetId);
+    const bal = new BN(getBalanceResponse.balance);
+    setBalance(bal.toString() / 1000000000);
+  };
+
+  const getXChain = () => {
+    let myNetworkID = 5; 
+    let myBlockchainID = 'X';
+    let avalanche = new Avalanche(
+      new URL('https://api.avax-test.network/ext/bc/X').hostname,
+      443,
+      'https',
+      myNetworkID,
+      myBlockchainID,
+    );
+    return avalanche.XChain();
+  };
+
   const login = async () => {
-    await magic.auth.loginWithMagicLink({ email });
+    await magic.auth.loginWithEmailOTP({ email });
     setIsLoggedIn(true);
   };
 
@@ -48,17 +72,8 @@ export default function App() {
   const handlerSendTransaction = async () => {
     setSendingTransaction(true);
     const metadata = await magic.user.getMetadata();
-    let myNetworkID = 4; //default is 3, we want to override that for our local network
-    let myBlockchainID = "X"; // The XChain blockchainID on this network
-    let ava = new Avalanche(
-      "testapi.avax.network",
-      443,
-      "https",
-      myNetworkID,
-      myBlockchainID
-    );
-    let xchain = ava.XChain();
-    let assetId = "nznftJBicce1PfWQeNEVBmDyweZZ6zcM3p78z9Hy9Hhdhfaxm";
+    const assetId = 'U8iRqJoiJm8xZHAacmvYyZVwqQx6uDNtQeP3CQ6fcgQk3JqnK';
+    const xchain = getXChain();
 
     let fromAddresses = [metadata.publicAddress];
     let toAddresses = [destinationAddress];
@@ -68,17 +83,17 @@ export default function App() {
       assetId,
       toAddresses,
       fromAddresses,
-      toAddresses
+      toAddresses,
     );
 
-    console.log("signedTX", signedTx);
+    console.log('signedTX', signedTx);
 
     let txid = await xchain.issueTx(signedTx);
     setSendingTransaction(false);
 
-    setTxHash(txid);
+    setTxHash(`https://testnet.avascan.info/blockchain/x/tx/${txid}`);
 
-    console.log("send transaction", txid);
+    console.log('send transaction', txid);
   };
 
   return (
@@ -91,7 +106,7 @@ export default function App() {
             name="email"
             required="required"
             placeholder="Enter your email"
-            onChange={(event) => {
+            onChange={event => {
               setEmail(event.target.value);
             }}
           />
@@ -105,7 +120,29 @@ export default function App() {
           </div>
           <div className="container">
             <h1>Avalanche address</h1>
-            <div className="info">{publicAddress}</div>
+            <div className="info">
+              <a
+                href={`https://testnet.avascan.info/blockchain/x/address/${publicAddress}/transactions`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {publicAddress}
+              </a>
+          </div>
+          <button>
+              <a href="https://core.app/tools/testnet-faucet/?token=c&subnet=c" target="_blank" rel="noreferrer">
+                Faucet
+              </a>
+            </button>            
+            <button>
+              <a href="https://wallet.avax.network/" target="_blank" rel="noreferrer">
+                Bridge
+              </a>
+            </button>
+          </div>
+          <div className="container">
+            <h1>Balance</h1>
+            <div className="info">{balance} avax</div>
           </div>
           <div className="container">
             <h1>Send AVAX Transaction</h1>
@@ -125,7 +162,7 @@ export default function App() {
               className="full-width"
               required="required"
               placeholder="Destination address"
-              onChange={(event) => {
+              onChange={event => {
                 setDestinationAddress(event.target.value);
               }}
             />
@@ -135,7 +172,7 @@ export default function App() {
               className="full-width"
               required="required"
               placeholder="Amount in AVAX"
-              onChange={(event) => {
+              onChange={event => {
                 setSendAmount(event.target.value);
               }}
             />
