@@ -129,6 +129,16 @@ export default function App() {
                 {publicAddress}
               </a>
           </div>
+          <button>
+              <a href="https://core.app/tools/testnet-faucet/?token=c&subnet=c" target="_blank" rel="noreferrer">
+                Faucet
+              </a>
+            </button>            
+            <button>
+              <a href="https://wallet.avax.network/" target="_blank" rel="noreferrer">
+                Bridge
+              </a>
+            </button>
           </div>
           <div className="container">
             <h1>Balance</h1>
